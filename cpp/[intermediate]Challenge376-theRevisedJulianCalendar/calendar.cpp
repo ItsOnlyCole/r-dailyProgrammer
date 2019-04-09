@@ -1,68 +1,72 @@
 #include <iostream>
 
-using namespace std;
-
 //Prototypes
-bool isLeapYear(long int year);
 long int getNumOfLeapYears(long int startYear, long int endYear);
-long int getClosestLeapYear(long int year, bool startEnd);
+long int getNumOfExceptionLeapYears (long int year, int remainder, int divisor);
 
 
+int main () {
+  using namespace std;
+  long int years[] = {2016, 2017, 2019, 2020, 1900, 1901, 2000, 2001, 2800, 2801, 123456, 123456, 1234, 5678, 123456, 7891011, 123456789101112, 1314151617181920};
 
-bool isLeapYear(long int year) {
-  if (year % 4 == 0 && year % 100 != 0)
+  for(int i = 0; i < sizeof(years)/sizeof(years[0]); i++)
     {
-      return true;
+      cout << "leaps(" << years[i] << ", " << years[i+1] << ") => " << getNumOfLeapYears(years[i], years[i+1]-1) << endl;
+      //Iterrates twice to account for two years being used in years[];
+      i++;
     }
-  else if (year % 4 == 0 && year % 100 == 0)
-    {
-      if (year % 900 == 200 || year % 900 == 600)
-	{
-	  return true;
-	}
-      else
-	{
-	  return false;
-	}
-    }
-  else
-    {
-      return false;
-    }
+  return 0;
 }
 
 long int getNumOfLeapYears(long int startYear, long int endYear) {
-  int numOfLeapYears = 0;
-  long int startLeapYear = getClosestLeapYear(startYear, true);
-  long int endLeapYear = getClosestLeapYear(endYear, false);
+  long int numOfLeapYears = 0;
 
-  //Ends loop if there are no leap years.
-  if(startLeapYear > endYear || endLeapYear < startYear)
+  //Ends function if start year is the same or larger than end year.
+  if(startYear >= endYear+1)
     {
       return 0;
     }
-  
-}
-
-
-
-
-long int getClosestLeapYear (long int year, bool startEnd) {
-  long int leapYear = year;
-
-  while(leapYear % 4 != 0)
+  else
     {
-      //Increments for startYear if true
-      if(startEnd == true)
+      //Adds leapyear if first year is a leap year.
+      if(startYear%4==0)
 	{
-	  leapYear++;
+	  if (startYear%100 != 0)
+	    {
+	      numOfLeapYears++;	      
+	    }
+	  //If year is divisible by 4 and 100, checks to see if it's an exception of exception
+	  else if(startYear%900 == 200 || startYear%900 == 600)
+	    {
+	      numOfLeapYears++;
+	    }
 	}
-      //Decrements for endYear if false
-      else
-	{
-	  leapYear--;
-	}
+      //Adds every leap year after the start year.
+      numOfLeapYears += (endYear/4)-(startYear/4);
+      //Removes every leap year divisible by 100
+      numOfLeapYears -= ((endYear/100)-(startYear/100));
+      //Re-adds leap years that are divisible by 100 but has a remainder of 200 or 600 when divided by 900
+      numOfLeapYears += ((getNumOfExceptionLeapYears(endYear, 200, 900)-getNumOfExceptionLeapYears(startYear,200,900)) + (getNumOfExceptionLeapYears(endYear, 600, 900) - getNumOfExceptionLeapYears(startYear, 600, 900)));
     }
-
-  return leapYear;
+  return numOfLeapYears;
 }
+
+
+long int getNumOfExceptionLeapYears (long int year, int remainder, int divisor) {
+  long int numOfExceptionLeapYears = 0;
+  //(year-remainder)/divisor = multiple of divisor or number of times x%divisor=remainder happen in year
+  numOfExceptionLeapYears = (year-remainder)/divisor;
+  //Adds 1 if year >= remainder because if year is the same as remainder it will give a remainder of 1 but a multiple of zero.
+  if(year >= remainder)
+    {
+      numOfExceptionLeapYears++;
+    }
+  return numOfExceptionLeapYears;
+}
+
+
+
+	  
+
+
+	  
